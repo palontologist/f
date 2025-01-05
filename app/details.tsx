@@ -1,167 +1,254 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, Modal } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { format } from 'date-fns';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 interface Activity {
   name: string;
   timestamp: string;
+  impact: number;
 }
 
 export default function Details() {
   const { name } = useLocalSearchParams();
-  const [totalImpact, setTotalImpact] = useState<number>(0);
   const [activities, setActivities] = useState<Activity[]>([]);
-  
-  const currentDate = format(new Date(), 'MMMM d, yyyy');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [newActivity, setNewActivity] = useState('');
+  const [newImpact, setNewImpact] = useState('');
   
   const categories = [
-    { name: 'Economic', metric: 5 },
-    { name: 'Social', metric: 3 },
-    { name: 'Environmental', metric: 8 },
+    { name: 'Economic', icon: 'cash', metric: 13, amount: '28' },
+    { name: 'Social', icon: 'account-group', metric: 25, amount: '45' },
+    { name: 'Environmental', icon: 'leaf', metric: 8, amount: '12' },
   ];
 
   const logActivity = () => {
-    const newActivity = {
-      name: 'New Impact Activity',
-      timestamp: format(new Date(), 'pp')
-    };
-    setActivities([...activities, newActivity]);
-    setTotalImpact(prev => prev + 1);
+    if (newActivity && newImpact) {
+      const activity = {
+        name: newActivity,
+        timestamp: format(new Date(), 'pp'),
+        impact: parseFloat(newImpact)
+      };
+      setActivities([...activities, activity]);
+      setModalVisible(false);
+      setNewActivity('');
+      setNewImpact('');
+    }
   };
 
   return (
-    <>
-      <Stack.Screen options={{ headerShown: false }} />
-      <View style={styles.container}>
-        <Text style={styles.header}>
-          Hello {name || 'User'}! {currentDate}
-        </Text>
+    <View style={styles.container}>
+      <Text style={styles.header}>
+        {format(new Date(), 'dd MMM, yyyy')}{'\n'}
+        Evening, {name || 'User'}
+      </Text>
 
-        {/* Impact Wheel */}
-        <View style={styles.impactWheel}>
-          <Text style={styles.impactText}>Total Impact</Text>
-          <Text style={styles.impactCount}>{totalImpact}</Text>
-        </View>
-
-        {/* Categories */}
-        <View style={styles.categoriesContainer}>
-          {categories.map((category, index) => (
-            <View key={index} style={styles.categoryCard}>
-              <Text style={styles.categoryName}>{category.name}</Text>
-              <Text style={styles.categoryMetric}>{category.metric}</Text>
-            </View>
-          ))}
-        </View>
-
-        {/* Log Activity Button */}
-        <TouchableOpacity 
-          style={styles.logButton}
-          onPress={logActivity}
-        >
-          <Text style={styles.logButtonText}>Log Activity</Text>
-        </TouchableOpacity>
-
-        {/* Activities List */}
-        <View style={styles.activitiesList}>
-          {activities.map((activity, index) => (
-            <View key={index} style={styles.activityCard}>
-              <Text style={styles.activityName}>{activity.name}</Text>
-              <Text style={styles.activityTime}>{activity.timestamp}</Text>
-            </View>
-          ))}
-        </View>
+      {/* Impact Circle */}
+      <View style={styles.impactCircle}>
+        <Text style={styles.impactLabel}>Impact</Text>
+        <Text style={styles.impactAmount}>85</Text>
+        <Text style={styles.impactSubtitle}>Total Impact Score</Text>
       </View>
-    </>
+
+      {/* Categories */}
+      <View style={styles.categoriesContainer}>
+        {categories.map((category, index) => (
+          <View key={index} style={styles.categoryCard}>
+            <View style={styles.categoryIcon}>
+              <MaterialCommunityIcons name={category.icon} size={24} color="#22C55E" />
+            </View>
+            <Text style={styles.categoryName}>{category.name}</Text>
+            <Text style={styles.categoryMetric}>{category.amount}</Text>
+            <View style={styles.progressBar}>
+              <View style={[styles.progress, { width: `${category.metric}%` }]} />
+            </View>
+          </View>
+        ))}
+      </View>
+
+      {/* Record Button */}
+      <TouchableOpacity 
+        style={styles.recordButton}
+        onPress={() => setModalVisible(true)}
+      >
+        <Text style={styles.recordButtonText}>Record Activity +</Text>
+      </TouchableOpacity>
+
+      {/* Activity Input Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalView}>
+          <TextInput
+            style={styles.input}
+            placeholder="Activity Name"
+            value={newActivity}
+            onChangeText={setNewActivity}
+            placeholderTextColor="#666"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Impact Score"
+            value={newImpact}
+            onChangeText={setNewImpact}
+            keyboardType="numeric"
+            placeholderTextColor="#666"
+          />
+          <View style={styles.modalButtons}>
+            <TouchableOpacity 
+              style={[styles.modalButton, styles.cancelButton]}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.buttonText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.modalButton, styles.saveButton]}
+              onPress={logActivity}
+            >
+              <Text style={styles.buttonText}>Save</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#000000',
     padding: 16,
   },
   header: {
     fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
+    color: 'white',
     marginTop: 40,
+    marginBottom: 20,
   },
-  impactWheel: {
-    height: 160,
-    backgroundColor: '#60a5fa',
-    borderRadius: 80,
+  impactCircle: {
+    height: 200,
+    width: 200,
+    borderRadius: 100,
+    borderWidth: 3,
+    borderColor: '#22C55E',
+    alignSelf: 'center',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 40,
   },
-  impactText: {
-    color: 'white',
-    fontSize: 18,
+  impactLabel: {
+    color: '#22C55E',
+    fontSize: 20,
   },
-  impactCount: {
+  impactAmount: {
     color: 'white',
-    fontSize: 36,
+    fontSize: 32,
     fontWeight: 'bold',
   },
+  impactSubtitle: {
+    color: '#22C55E',
+    fontSize: 14,
+  },
   categoriesContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: 24,
   },
   categoryCard: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: 'white',
-    padding: 16,
-    borderRadius: 12,
+    flex: 1,
+    alignItems: 'center',
+    marginHorizontal: 4,
+  },
+  categoryIcon: {
+    width: 40,
+    height: 40,
+    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
   },
   categoryName: {
-    fontSize: 16,
-    fontWeight: '500',
+    color: 'white',
+    fontSize: 12,
+    marginBottom: 4,
+  },
+  progressBar: {
+    height: 4,
+    backgroundColor: '#333',
+    borderRadius: 2,
+    width: '100%',
+    marginTop: 4,
+  },
+  progress: {
+    height: '100%',
+    backgroundColor: '#22C55E',
+    borderRadius: 2,
   },
   categoryMetric: {
+    color: '#22C55E',
     fontSize: 16,
     fontWeight: 'bold',
   },
-  logButton: {
-    backgroundColor: '#22c55e',
+  recordButton: {
+    backgroundColor: '#22C55E',
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 8,
     alignItems: 'center',
-    marginBottom: 24,
+    marginTop: 16,
   },
-  logButtonText: {
+  recordButtonText: {
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
   },
-  activitiesList: {
-    flex: 1,
-  },
-  activityCard: {
-    backgroundColor: 'white',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 8,
+  modalView: {
+    margin: 20,
+    marginTop: 'auto',
+    backgroundColor: '#1a1a1a',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 35,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 1,
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
   },
-  activityName: {
-    fontSize: 14,
-    fontWeight: '500',
+  input: {
+    backgroundColor: '#333',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+    color: 'white',
   },
-  activityTime: {
-    fontSize: 12,
-    color: '#6b7280',
-    marginTop: 4,
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  modalButton: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 8,
+    marginHorizontal: 8,
+  },
+  cancelButton: {
+    backgroundColor: '#444',
+  },
+  saveButton: {
+    backgroundColor: '#22C55E',
+  },
+  buttonText: {
+    color: 'white',
+    textAlign: 'center',
+    fontWeight: 'bold',
   },
 });
