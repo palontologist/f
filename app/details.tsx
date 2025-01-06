@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TextInput, Modal } from 'react-native';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { format } from 'date-fns';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -10,6 +10,13 @@ interface Activity {
   impact: number;
 }
 
+interface Category {
+  name: string;
+  icon: keyof typeof MaterialCommunityIcons.glyphMap;
+  metric: number;
+  amount: string;
+}
+
 export default function Details() {
   const { name } = useLocalSearchParams();
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -17,7 +24,7 @@ export default function Details() {
   const [newActivity, setNewActivity] = useState('');
   const [newImpact, setNewImpact] = useState('');
   
-  const categories = [
+  const categories: Category[] = [
     { name: 'Economic', icon: 'cash', metric: 13, amount: '28' },
     { name: 'Social', icon: 'account-group', metric: 25, amount: '45' },
     { name: 'Environmental', icon: 'leaf', metric: 8, amount: '12' },
@@ -36,12 +43,13 @@ export default function Details() {
       setNewImpact('');
     }
   };
+  const router = useRouter();
 
   return (
     <View style={styles.container}>
       <Text style={styles.header}>
         {format(new Date(), 'dd MMM, yyyy')}{'\n'}
-        Evening, {name || 'User'}
+        Hello, {name || 'User'}
       </Text>
 
       {/* Impact Circle */}
@@ -74,6 +82,14 @@ export default function Details() {
       >
         <Text style={styles.recordButtonText}>Record Activity +</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity 
+  style={styles.recordButton}
+  onPress={() => router.push('/impact')}
+>
+  <Text style={styles.recordButtonText}>Impact History</Text>
+</TouchableOpacity>
+
 
       {/* Activity Input Modal */}
       <Modal
@@ -111,6 +127,7 @@ export default function Details() {
             >
               <Text style={styles.buttonText}>Save</Text>
             </TouchableOpacity>
+          
           </View>
         </View>
       </Modal>
