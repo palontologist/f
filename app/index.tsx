@@ -1,12 +1,15 @@
-import { FormInput } from '~/components/FormInput';
-import { GlaringSegment } from '~/components/GlaringSegment';
-import { GlowingButton } from '~/components/GlowingButton';
-import { GradientButton } from '~/components/GradientButton';
+
+import { Link, useRouter} from 'expo-router';
+import { Text, View, StyleSheet, SafeAreaView, Image } from 'react-native';
 import { MotiView } from 'moti';
-import { StyleSheet, SafeAreaView, Text, Image } from 'react-native';
-import { useRouter } from 'expo-router';
-export default function MainScreen() {
-  const router = useRouter();
+import { GlaringSegment } from '../components/GlaringSegment';
+import { GlowingButton } from '../components/GlowingButton';
+import { GradientButton } from '../components/GradientButton';
+
+export default function Page() {
+
+  const router = useRouter(); // Initialize the router
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -34,25 +37,21 @@ export default function MainScreen() {
           duration: 1200,
           delay: 800,
         }}>
-        <GlaringSegment style={styles.segment} >
-          
-          <Text style={styles.heading}>Hello</Text>
-          <FormInput placeholder="Email address" />
-          <FormInput placeholder="Password" secureTextEntry />
-          <GlowingButton>Log in</GlowingButton>
-          <Text style={styles.text}>Just getting started?</Text>
-          <GradientButton style={styles.buttonSignUp}>Create an account</GradientButton>
-          <SafeAreaView style={styles.container}>
-        
-    </SafeAreaView>
-        </GlaringSegment>
-        
+        <GlaringSegment style={styles.segment}>
+         
+            <Text style={styles.heading}>Welcome</Text>
+            <Text style={styles.heading}>
+        Start measuring your impact on the environment, economy, and society.
+        Based on your daily activities
+
+      </Text>
+            <GradientButton
+              onPress={() => router.push('/details')} 
+              style={styles.buttonSignUp}>
+              Get started
+              </GradientButton>
+          </GlaringSegment>
       </MotiView>
-      <GradientButton
-        style={styles.buttonSignUp}
-        onPress={() => router.push('/details')}>
-        <Text style={styles.buttonSignUp}>Skip Login</Text>
-      </GradientButton>
     </SafeAreaView>
   );
 }
