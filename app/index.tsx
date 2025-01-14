@@ -55,7 +55,6 @@ export default function Page() {
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -95,3 +94,4 @@ const styles = StyleSheet.create({
     height: 160,
   },
 });
+

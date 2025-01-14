@@ -13,6 +13,7 @@ export default function RootLayout() {
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="details" options={{ headerShown: false }} />
         <Stack.Screen name="impact" options={{ headerShown: false }} />
+        <Stack.Screen name="recordActivity" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
    

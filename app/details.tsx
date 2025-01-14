@@ -78,7 +78,7 @@ export default function Details() {
       {/* Record Button */}
       <TouchableOpacity 
         style={styles.recordButton}
-        onPress={() => setModalVisible(true)}
+        onPress={() => router.push('/recordActivity')}
       >
         <Text style={styles.recordButtonText}>Record Activity +</Text>
       </TouchableOpacity>
